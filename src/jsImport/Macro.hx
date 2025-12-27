@@ -14,7 +14,7 @@ class Macro {
   static final META = ':js.import';
   static function init() {
     onGenerate(types -> {
-      var lines = [];
+      final lines = [];
 
       for (t in types)
         switch t {
@@ -23,7 +23,7 @@ class Macro {
             if (!cl.isExtern)
               error('@$META can only be used on extern classes', meta[0].pos);
 
-            var id =
+            final id =
               if (cl.isPrivate) cl.module.replace('.', '_') + '__' + cl.name;
               else cl.pack.concat([cl.name]).join('_');
 
@@ -47,7 +47,11 @@ class Macro {
           default:
         }
 
-      var tmp = Compiler.getOutput().directory() + '/tmp${Std.random(1 << 29)}.js';
+      if (!FileSystem.exists(Compiler.getOutput().directory())) {
+        FileSystem.createDirectory(Compiler.getOutput().directory());
+      }
+
+      final tmp = Compiler.getOutput().directory() + '/tmp${Std.random(1 << 29)}.js';
       tmp.saveContent(lines.join('\n'));
       Compiler.includeFile(tmp);
       onAfterGenerate(tmp.deleteFile);
